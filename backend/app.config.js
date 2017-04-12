@@ -1,7 +1,20 @@
 // APP CONFIG
 module.exports = {
-    MONGO_URI: 'mongodb://localhost:27017/pomiary', //'mongodb://mo1685_hdWork:2lOV3CPuwFne5xofIuJ4@85.194.240.29:27017/mo1685_hdWork'
-    MODE: 'Angular', // Normal / Angular
+    HOST: 'localhost', // Development server will be on address: http://localhost:4000
+    PORT: 4000,
+    MONGO_DB: { // MongoDB Config - mongodb://USER:PASSWORD@HOST:PORT/NAME
+        USER: '',
+        PASSDOWRD: '',
+        HOST: 'localhost',
+        PORT: 27017,
+        NAME: 'smogly-data-visualizer',
+        OPTIONS: {
+            config: {
+                autoIndex: true
+            }
+        }
+    },
+    MODE: 'normal', // normal / angular / api
     LANGUAGES: [ // All HTML files need to have a language suffix e.g index-en.html etc.
         'pl', // First element is default variable - Is returned in all otherwise cases of a request, which hasn't specified language value.
         'en'
@@ -33,42 +46,14 @@ module.exports = {
         NAME: '500 page'
     },
     REDIRECT: {
-        NAME: 'main page'
+        TYPES: [
+            'name',
+            'url'
+        ],
+        DEFAULT_TYPE: 'name',
+        DEFAULT_NAME: 'main page',
+        DEFAULT_URL: '/'
     },
-    PAGES: [ // All types of pages need to be defined in this array. Always required object properties: name, url and fileName in some cases statusCode, type, root and redirect are required.
-        { // Example page type:  main ---> Remember to create all new pages according to below examples of all available types of pages.
-            name: 'main page',
-            url: 'home',
-            fileName: 'index',
-            type: 'main',
-            root: '/assets'
-        }, { // Example page type: normal
-            name: 'dashboard page',
-            url: 'dashboard',
-            fileName: 'dashboard',
-            type: 'normal'
-        }, { // Example page type: 404
-            name: '404 page',
-            url: '404',
-            statusCode: 404,
-            fileName: '404',
-            type: '404'
-        }, { // Example page type: 500
-            name: '500 page',
-            url: '500',
-            statusCode: 500,
-            fileName: '500',
-            type: '500'
-        }, { // Example page type: redirect
-            name: 'redirect',
-            url: 'redirect',
-            statusCode: 301,
-            type: 'redirect',
-            redirect: {
-                name: 'dashboard page'
-            }
-        }
-    ],
     HTTP_CODE: {
         SUCCESS: 200, // Default status code for all successful responses of page or resource without property 'statusCode'.
         REDIRECT: 301, // Default status code for all redirects and redirect pages without property 'statusCode'.
@@ -80,6 +65,7 @@ module.exports = {
     CONFIG_FILE: 'app.config.js',
     DIRECTORY: {
         STATIC_DIR: '/assets', // Static files directory
-        PAGES_DIR: '/assets/pages' // Pages files directory
+        PAGES_DIR: '/assets/pages', // Pages files directory
+        CONTROLLERS_DIR: '/controllers' // Controllers files directory
     }
 };

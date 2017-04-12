@@ -8,231 +8,46 @@
 
 
 // NODE MODULES
+const mongoose = require('./services/mongoose');
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
 const compression = require('compression');
-const chalk = require('chalk');
-const mongoose = require('mongoose');
-const request = require('request');
-
-
-// APP MODULES
-const routesInjector = require('./helpers/routesInjector');
 
 
 // APP CONFIG
 const APP_CONFIG = require('./app.config.js');
 
 
-// USEFUL FUNCTIONS
-// To display a console log message in five types: normal, success, info, warning and error
-function alertHandler(args) {
-    return;
-
-    args = args || {};
-
-    if (app.get('env') === 'production' && args.type !== 'error') {
-        return;
-    }
-
-    let types = {
-        normal: 'white',
-        success: 'green',
-        info: 'blue',
-        warning: 'yellow',
-        error: 'red'
-    };
-
-    args.type = args.type || 'info';
-    args.title = args.title || args.type;
-    args.message = args.message || 'Remember to specify necessary property type & message in a configuration object.';
-    args.color = types[args.type];
-    args.messageTemplate = `
-**~~~~~~~~* ${args.title.toUpperCase()} LOG - OPEN *~~~~~~~~~**
-${args.message}
-**~~~~~~~~* ${args.title.toUpperCase()} LOG - CLOSE *~~~~~~~~**`;
-
-    console.log(chalk[args.color](args.messageTemplate));
-
-}
+// APP HELPERS
+const dataInjector = require('./helpers/dataInjector');
+//const routesInjector = require('./helpers/routesInjector');
 
 
-// To create full URL address as a value (string) or false (boolean)
-function createFullUrl(lang, url) {
-
-    return lang && url ? `/${lang}/${url}` : false;
-
-}
+// APP MIDDLEWARES
+const errorHandler = require('./middlewares/errorHandler');
 
 
-// To create file full name as a value (string) or false (boolean)
-function createFileFullName(name, lang) {
-
-    return name && lang ? `${name}-${lang}.html` : false;
-
-}
+// APP MODELS
+const Route = require('./models/route').model;
+const Page = require('./models/page').model;
 
 
-// To create redirect page as a value (object)
-function createPageRedirect(args) {
-
-    args = args || {};
-
-    let self = {
-        statusCode: args.statusCode || APP_CONFIG.HTTP_CODE.REDIRECT,
-        redirect: {
-            url: args.url || createFullUrl(args.lang || APP_CONFIG.LANGUAGES[0], getPage({
-                param: 'name',
-                value: args.name || APP_CONFIG[404].NAME
-            }).url || getPage({
-                param: 'name',
-                value: APP_CONFIG.REDIRECT.NAME
-            }).url)
-        }
-    };
-
-    return self;
-
-}
+//APP PAGES
+const pages = require('./pages/pages');
 
 
-// To get request protocol as a value (string) or false (boolean)
-function getProtocol(req) {
-
-    if (!req) {
-        return false;
-    }
-
-    let protocol = req.connection.encrypted ? 'https' : 'http';
-
-    protocol = req.headers['x-forwarded-proto'] || protocol;
-
-    return protocol.split(/\s*,\s*/)[0];
-
-}
+// APP ROUTES
+const routes = require('./routes/routes');
 
 
-// To get supported language as a value (object)
-function getLang(arg) {
-
-    return {
-        value: APP_CONFIG.LANGUAGES.includes(arg) ? arg : false,
-        existed: arg ? true : false
-    };
-
-}
+// APP SERVICES
+const reqProtocol = require('./services/reqProtocol');
+const alertHandler = require('./services/alertHandler');
 
 
-// To get existed page as a value (object)
-function getPage(args) {
-
-    args = args || {};
-
-    if (!args.value) {
-        return {
-            existed: false
-        };
-    }
-
-    let searchTypes = ['name', 'url'],
-        searchParam = searchTypes.includes(args.param) ? args.param : 'name',
-        searchValue = args.value,
-        pages = APP_CONFIG.PAGES;
-
-    for (let i in pages) {
-        if (pages[i][searchParam] === searchValue) {
-            pages[i].statusCode = pages[i].statusCode || APP_CONFIG.HTTP_CODE.SUCCESS;
-            pages[i].root = pages[i].root || APP_CONFIG.DIRECTORY.PAGES_DIR;
-            pages[i].redirect = pages[i].redirect || false;
-            pages[i].existed = true;
-
-            return pages[i];
-        }
-    }
-
-    return {
-        existed: true
-    };
-
-}
-
-
-// To handle all possible routes, returns value (object) with properties of an appropriate page or a redirect page
-function routeHandler(params) {
-
-    params = params || {};
-
-    let langObj = getLang(params.lang),
-        pageObj = getPage({
-            param: 'url',
-            value: params.page
-        });
-
-    if (pageObj.name) {
-        pageObj.fileFullName = createFileFullName(pageObj.fileName, langObj.value || APP_CONFIG.LANGUAGES[0]);
-    }
-
-
-    // In case of MODE: Angular
-    if (APP_CONFIG.MODE === 'Angular') {
-        if (!langObj.existed && !pageObj.existed && params[0] || params.url === '///') {
-            return createPageRedirect({
-                url: '/'
-            });
-        }
-
-        return {
-            statusCode: APP_CONFIG.HTTP_CODE.SUCCESS,
-            fileFullName: createFileFullName('index', langObj.value || APP_CONFIG.LANGUAGES[0]),
-            root: APP_CONFIG.DIRECTORY.STATIC_DIR
-        };
-    }
-
-
-    // Redirects in these cases to Main Page
-    if ((!pageObj.name && !pageObj.existed) && ((!langObj.value && !langObj.existed) || (langObj.value && !params[0]))) {
-        return createPageRedirect({
-            lang: langObj.value,
-            name: APP_CONFIG.MAIN_PAGE.NAME
-        });
-    }
-
-
-    // Redirects in these cases to 404 Page
-    if ((!langObj.value && langObj.existed) || (!pageObj.name && pageObj.existed) || params[0]) {
-        return createPageRedirect({
-            lang: langObj.value
-        });
-    }
-
-
-    // Redirects in these cases to Page, which is specified in pageObj
-    if (pageObj.redirect) {
-        return createPageRedirect({
-            statusCode: pageObj.statusCode,
-            lang: langObj.value,
-            name: pageObj.redirect.name
-        });
-    }
-
-
-    return pageObj;
-
-}
-
-
-
-//MongoDB Connect
-mongoose.connect(APP_CONFIG.MONGO_URI);
-mongoose.connection.on('error', function (err) {
-    console.log('Error: Could not connect to MongoDB. Did you forget to run `mongod`?'.red);
-});
-
-
-
-// INIT EXPRESS APP ---> https://expressjs.com/en/4x/api.html
-const app = new express();
+// ExpressAPP Init ---> https://expressjs.com/en/4x/api.html
+const app = express();
 
 
 // Sets variables host & port in app object
@@ -261,7 +76,7 @@ app.use(compression({
 if (app.get('env') === 'production') {
 
     app.use((req, res, next) => {
-        return getProtocol(req) === 'https' ? next() : res.redirect(APP_CONFIG.HTTP_CODE.REDIRECT, 'https://' + req.hostname + req.url);
+        return reqProtocol(req) === 'https' ? next() : res.redirect(APP_CONFIG.HTTP_CODE.REDIRECT, 'https://' + req.hostname + req.url);
     });
 
 }
@@ -289,73 +104,18 @@ app[METHOD:get,post,put...]('/ROUTE_EXAMPLE', FUNCTION(req, res, next) => {
 });
 
 */
-
-const pomiar = require('./models/pomiar');
-
-app.get('/test', function (req, res, next) {
-
-    //    let npomiar = new pomiar({
-    //        name: "Poznań 2 Ogród Botaniczny",
-    //        updated: "2017-04-08T06:20:23.023186Z",
-    //        position: {
-    //            coordinates: [
-    //                16.87728889,
-    //                52.42031944
-    //            ]
-    //        },
-    //        city: "Nowy Tomyśl",
-    //        district: "Kazmierz",
-    //        lastMetering: {
-    //            pm25: 22,
-    //            pm01: 23,
-    //            pm10: 56
-    //        }
-    //    });
-    //
-    //
-    //    let npomiar2 = new pomiar({
-    //        name: "Poznań 2",
-    //        updated: "2017-05-08T06:20:23.023186Z",
-    //        position: {
-    //            coordinates: [
-    //                15,
-    //                50
-    //            ]
-    //        },
-    //        city: "Nowy Tomyśl",
-    //        district: "Kazmierz",
-    //        lastMetering: {
-    //            pm25: 2,
-    //            pm01: 2,
-    //            pm10: 5
-    //        }
-    //    });
-    //
-    //    npomiar2.save(function (err, pomiarN) {
-    //        if (err) return console.error(err);
-    //        console.log(pomiarN);
-    //        res.type('json').send(pomiarN);
-    //    });
-
-
-
-});
-
-
-
-// Second way recommended: Go into directory ./routes then in file routes.js defines your route objects.
-// Adds routes to app object
-const Route = require('./models/route');
-const route = new Route('/test');
-
-const routes = require('./routes/routes');
-
-routes.forEach((elem) => {
-    console.log(elem);
-    routesInjector(app, new Route(elem));
-});
-
-//routesInjector(app, route);
+// Second way recommended: Go into directory ./routes then in file routes.js defines your route objects for any mode.
+// Depends on currently selected mode adds routes to app object
+//Route.find({
+//    type: APP_CONFIG.MODE
+//}).then((results) => {
+//    //routesInjector(app, results);
+//    console.log(results);
+//
+//    results.forEach((elem) => {
+//        app[elem.method](elem.url.split(','), elem.getController());
+//    });
+//});
 
 
 ////////////////////////////////////
@@ -366,144 +126,50 @@ routes.forEach((elem) => {
 ////////////////////////////////////
 
 
-// Handles all possible routes
-app.get(['/', '/:lang', '/:lang/*', '/:lang/:page', '/:lang/:page/*', '*'], (req, res, next) => {
-
-    req.params.url = req.url;
-
-    let options = routeHandler(req.params);
-
-
-    if (options.redirect) {
-        options.redirect.url = `${getProtocol(req)}://${app.get('env') === 'production' ? req.hostname : req.headers.host}${options.redirect.url}`;
-
-        alertHandler({
-            type: 'info',
-            message: `Redirected: ${JSON.stringify(options)}`
-        });
-
-        return res.redirect(options.statusCode, options.redirect.url);
-    }
-
-    return res.status(options.statusCode).type('html').sendFile(options.fileFullName, {
-        root: `${__dirname}${options.root}`
-    }, (err) => {
-        if (err) {
-            next(err);
-        } else {
-            alertHandler({
-                type: 'success',
-                message: `Sent: ${JSON.stringify(options)}`
-            });
-        }
-    });
-
-});
-
-
 // Handles HTTP errors
-app.use((err, req, res, next) => {
+app.use(errorHandler);
 
-    if (!err) {
-        return next();
+
+// Allows exporting to usage in different places e.g. unit tests
+function createServer(app, port, host, ...args) {
+    if (arguments.length === 0) {
+        return false;
     }
 
-    alertHandler({
-        type: 'error',
-        message: err
-    });
+    if (arguments.length === 1 && typeof app === 'object') {
+        args = app;
 
-    alertHandler({
-        type: 'error',
-        message: err.stack
-    });
-
-
-    // In case of MODE: Angular
-    if (APP_CONFIG.MODE === 'Angular') {
-        let statusCode = err.statusCode || 500;
-
-        return res.status(statusCode).type('json').send({
-            message: err.message,
-            statusCode: statusCode
-        });
+        app = args.app;
+        port = args.port;
+        host = args.host;
     }
 
+    if (typeof app !== 'function') {
+        return false;
+    }
 
-    let statusCode = APP_CONFIG.HTTP_CODE.SUPPORTED_ERRORS.includes(err.statusCode) ? err.statusCode : APP_CONFIG.HTTP_CODE.SUPPORTED_ERRORS[0],
-        options = createPageRedirect({
-            lang: req.params.lang,
-            name: APP_CONFIG[statusCode].NAME
-        });
+    app.listen(port, host, () => {
+        console.log('\x1b[34m%s\x1b[0m', '[Restful API]', `Listening on address: http://${host}:${port}`);
+    });
+}
 
 
-    return res.redirect(options.statusCode, options.redirect.url);
+// Runs the HTTP server
+createServer(app, app.get('port'), app.get('host'));
 
+
+// MongoDB Connect ---> http://mongoosejs.com/docs/guide.html
+mongoose.connect(`mongodb://${APP_CONFIG.MONGO_DB.USER}:${APP_CONFIG.MONGO_DB.PASSDOWRD}@${APP_CONFIG.MONGO_DB.HOST}:${APP_CONFIG.MONGO_DB.PORT}/${APP_CONFIG.MONGO_DB.NAME}`, APP_CONFIG.MONGO_DB.OPTIONS, (err) => {
+    if (err) {
+        alertHandler('error', err);
+    }
+}).then(() => { // Injects static objects of route and page to database
+    dataInjector(Route, routes[APP_CONFIG.MODE]);
+    dataInjector(Page, pages);
 });
 
-function saveToDB(result) {
-    console.log(result);
 
-    const Pomiar = require('./models/pomiar');
-
-    Pomiar.find({
-        name: result.name,
-        lastMetering: {
-            created: result.last_metering.created
-        }
-    }, (err, pomiar) => {
-        console.log(err);
-        console.log(pomiar)
-
-        //        if (pomiary.length === 0) {
-        //            let pomiarNew = new pomiar({
-        //                name: result.name,
-        //                position: {
-        //                    coordinates: result.position.coordinates
-        //                },
-        //                city: result.city,
-        //                district: result.district,
-        //                lastMetering: {
-        //                    created: result.last_metering.created,
-        //                    pm25: result.last_metering.pm25,
-        //                    pm01: result.last_metering.pm01,
-        //                    pm10: result.last_metering.pm10
-        //                }
-        //            });
-        //
-        //            pomiarNew.save((err, pomiarNew) => {
-        //                if (err) {
-        //                    return console.log(err);
-        //                }
-        //
-        //                console.log(pomiarNew);
-        //            });
-        //        }
-    });
-
+module.exports = {
+    app: app,
+    createServer: createServer
 };
-
-
-// Runs the server
-app.listen(app.get('port'), app.get('host'), () => {
-
-    console.log(`${chalk.blue('[Restful API]')} Listening on address: http://${app.get('host')}:${app.get('port')}`);
-
-    let counterTime = 0;
-    const interval = setInterval(() => {
-        counterTime += 1000;
-
-        if (counterTime % 1000 * 15 === 0) {
-            console.log(counterTime);
-
-            request('http://app.smogly.pl/api/v1/station/', (error, response, body) => {
-                let resultsArray = JSON.parse(body).results;
-
-                resultsArray.forEach((elem) => {
-                    saveToDB(elem);
-                });
-            });
-        }
-    }, 1000);
-
-});

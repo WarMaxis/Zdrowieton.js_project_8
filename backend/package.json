@@ -1,5 +1,5 @@
 {
-  "name": "zdrowieton-js--node-js",
+  "name": "mogly-data-visualizer",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -17,16 +17,20 @@
     "chai-spies": "^0.7.1",
     "eslint": "^3.18.0",
     "mocha": "^3.2.0",
+    "node-mocks-http": "^1.6.1",
     "nodemon": "^1.11.0",
-    "request": "^2.81.0"
+    "sinon": "^2.1.0",
+    "sinon-chai": "^2.9.0"
   },
   "dependencies": {
+    "bluebird": "^3.5.0",
     "body-parser": "^1.17.1",
     "chalk": "^1.1.3",
     "compression": "^1.6.2",
     "cors": "^2.8.1",
     "express": "^4.15.2",
     "mongoose": "^4.9.3",
+    "mongoose-unique-validator": "^1.0.5",
     "request": "^2.81.0"
   }
 }
