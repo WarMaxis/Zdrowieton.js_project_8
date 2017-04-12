@@ -1,193 +1,198 @@
+/* eslint no-console: 0 */
+/* eslint no-unused-vars: ["error", { "vars": "local", "args": "none" }] */
+/* global pageModel page */
+
+
 'use strict';
 
 
 // CHAI SETUP & HELPERS
 const chai = require('chai');
 const expect = chai.expect;
+const helpers = require('../helpers/helpers');
 
 
-// APP CONFIG
-const APP_CONFIG = require('../../app.config.js');
+// APP SERVICES
+const mongoose = require('../../services/mongoose');
 
 
-// LOCAL MODULES
-const Page = require('../../models/page.js');
+// APP MODELS
+let pageModel,
+    page;
 
 
 describe('Models:', () => {
 
     describe('page.js', () => {
+        before((done) => {
 
-        it('is a function', () => {
+            mongoose.connect(`mongodb://${helpers.MONGO_DB.USER}:${helpers.MONGO_DB.PASSDOWRD}@${helpers.MONGO_DB.HOST}:${helpers.MONGO_DB.PORT}/${helpers.MONGO_DB.NAME}`, helpers.MONGO_DB.OPTIONS, (err) => {
+                if (err) {
+                    console.log(err.message);
+                }
 
-            expect(Page).to.be.a('function');
+                done();
+            });
 
         });
 
-        it('constructor name is Page', () => {
+        beforeEach((done) => {
+            pageModel = mongoose.models.Page ? mongoose.model('Page') : mongoose.model('Page', require('../../models/page').schema);
 
-            expect(new Page({
+            page = new pageModel(helpers.PAGE_MODEL.EXAMPLE_DATA);
+
+            page.save((err, page) => {
+                if (err) {
+                    console.log('1.', err.message);
+                }
+
+                done();
+            });
+        });
+
+        afterEach((done) => {
+
+            pageModel.collection.drop().then(() => {
+                done();
+            });
+
+        });
+
+        after((done) => {
+
+            mongoose.connection.close().then(() => {
+                done();
+            });
+
+        });
+
+        it('is a function', (done) => {
+            expect(pageModel).to.be.a('function');
+
+            done();
+        });
+
+        it('method find should return an array with one object', (done) => {
+
+            pageModel.find(helpers.PAGE_MODEL.EXAMPLE_DATA, (err, results) => {
+                if (results.length !== 1) {
+                    throw Error('Something went wrong!');
+                }
+
+                done();
+            });
+
+        });
+
+        it('method save on object with the same property name should return an error', (done) => {
+            const pageN = new pageModel({
                 name: 'test',
+                url: '/test1',
+                fileName: 'test1'
+            });
+
+            pageN.save((err, page) => {
+                if (!err) {
+                    throw Error('Something went wrong!');
+                }
+
+                done();
+            });
+        });
+
+        it('method save on object with the same property url should return an error', (done) => {
+            const pageU = new pageModel({
+                name: 'test1',
+                url: '/test',
+                fileName: 'test1'
+            });
+
+            pageU.save((err, page) => {
+                if (!err) {
+                    throw Error('Something went wrong!');
+                }
+
+                done();
+            });
+        });
+
+        it('page model constructor without required object properties name, url and fileName should return an error', (done) => {
+            pageModel.create({
                 url: '/test',
                 fileName: 'test'
-            }).constructor.name).to.equal('Page');
+            }, (err, page) => {
+                if (!err) {
+                    throw Error('Something went wrong!');
+                }
+            });
 
-        });
-
-        it('constructor without any arguments should throw an error', () => {
-            let error;
-
-            try {
-                new Page();
-            } catch (e) {
-                error = e;
-            }
-
-            if (!error) {
-                throw Error('Page constructor does not pass test.');
-            }
-        });
-
-        it('constructor without specified required any of three first object properties name, url and fileName should throw an error', () => {
-            let errorCounter = 0;
-
-            try {
-                new Page({
-                    url: '/test',
-                    fileName: 'test'
-                });
-            } catch (e) {
-                errorCounter++;
-            }
-
-            try {
-                new Page({
-                    name: 'test',
-                    fileName: 'test'
-                });
-            } catch (e) {
-                errorCounter++;
-            }
-
-            try {
-                new Page({
-                    name: 'test',
-                    url: '/test'
-                });
-            } catch (e) {
-                errorCounter++;
-            }
-
-            if (errorCounter !== 3) {
-                throw Error('Page constructor does not pass test.');
-            }
-        });
-
-        it('constructor with specified required object properties (name, url and fileName) should return an new object', () => {
-
-            expect(new Page({
+            pageModel.create({
                 name: 'test',
-                url: '/test',
                 fileName: 'test'
-            })).to.be.an('object');
-
-        });
-
-        it('a new object with specified object properties name, url, fileName, statusCode, type and root should contain object properties with the same values', () => {
-            const page = new Page({
-                name: 'test',
-                url: '/test',
-                fileName: 'test',
-                statusCode: 200,
-                type: 'test',
-                root: '/test'
+            }, (err, page) => {
+                if (!err) {
+                    throw Error('Something went wrong!');
+                }
             });
 
-            expect(page).to.deep.equal({
+            pageModel.create({
                 name: 'test',
-                url: '/test',
-                fileName: 'test',
-                statusCode: 200,
-                type: 'test',
-                root: '/test'
+                url: '/test'
+            }, (err, page) => {
+                if (!err) {
+                    throw Error('Something went wrong!');
+                }
+
+                done();
             });
         });
 
-        it('constructor without specified required any of three first arguments name, url and fileName should throw an error', () => {
-            let errorCounter = 0;
+        it('new page object created only with required object properties name, url and fileName should return correct object', () => {
+            const pageEqual = {
+                name: page.name,
+                url: page.url,
+                statusCode: page.statusCode,
+                fileName: page.fileName,
+                type: page.type,
+                redirect: {
+                    statusCode: page.redirect.statusCode,
+                    type: page.redirect.type,
+                    name: page.redirect.name,
+                    url: page.redirect.url
+                },
+                root: page.root
+            };
 
-            try {
-                new Page(null, null, null);
-            } catch (e) {
-                errorCounter++;
-            }
-
-            try {
-                new Page(null, null);
-            } catch (e) {
-                errorCounter++;
-            }
-
-            try {
-                new Page(null);
-            } catch (e) {
-                errorCounter++;
-            }
-
-            if (errorCounter !== 3) {
-                throw Error('Page constructor does not pass test.');
-            }
+            expect(pageEqual).to.deep.equal(helpers.PAGE_MODEL.EQUAL_PAGE);
         });
 
-        it('constructor with specified required first three arguments (name, url and fileName) should return an new object', () => {
+        it('new page object created with all random object properties should return correct object', () => {
+            page = new pageModel(helpers.PAGE_MODEL.RANDOM_EQUAL_PAGE);
+            const pageEqual = {
+                name: page.name,
+                url: page.url,
+                statusCode: page.statusCode,
+                fileName: page.fileName,
+                type: page.type,
+                redirect: {
+                    statusCode: page.redirect.statusCode,
+                    type: page.redirect.type,
+                    name: page.redirect.name,
+                    url: page.redirect.url
+                },
+                root: page.root
+            };
 
-            expect(new Page('test', '/test', 'test')).to.be.an('object');
-
+            expect(pageEqual).to.deep.equal(helpers.PAGE_MODEL.RANDOM_EQUAL_PAGE);
         });
 
-        it('a new object with specified arguments name, url, fileName, statusCode, type and root should contain object properties with the same values', () => {
-            const page = new Page('test', '/test', 'test', 200, 'test', '/test');
-
-            expect(page).to.deep.equal({
-                name: 'test',
-                url: '/test',
-                fileName: 'test',
-                statusCode: 200,
-                type: 'test',
-                root: '/test'
-            });
+        it('method fullUrl should return full url with language param: /pl/test', () => {
+            expect(page.fullUrl('pl')).to.equal('/pl/test');
         });
 
-        it('an object metod fullFileName() should return file name in default language', () => {
-            const pageO = new Page({
-                name: 'test',
-                url: '/test',
-                fileName: 'test',
-                statusCode: 200,
-                type: 'test',
-                root: '/test'
-            });
-            const pageA = new Page('test', '/test', 'test', 200, 'test', '/test');
-
-            expect(pageO.fullFileName()).to.equal(`test-${APP_CONFIG.LANGUAGES[0]}.html`);
-            expect(pageA.fullFileName()).to.equal(`test-${APP_CONFIG.LANGUAGES[0]}.html`);
+        it('method fullFileName should return full file name with language suffix (-pl) and extension (.html): test-pl.html', () => {
+            expect(page.fullFileName('pl')).to.equal('test-pl.html');
         });
-
-        it('an object metod fullFileName("en") should return file name in english language', () => {
-            const pageO = new Page({
-                name: 'test',
-                url: '/test',
-                fileName: 'test',
-                statusCode: 200,
-                type: 'test',
-                root: '/test'
-            });
-            const pageA = new Page('test', '/test', 'test', 200, 'test', '/test');
-
-            expect(pageO.fullFileName('en')).to.equal('test-en.html');
-            expect(pageA.fullFileName('en')).to.equal('test-en.html');
-        });
-
     });
 
 });
