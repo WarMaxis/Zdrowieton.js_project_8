@@ -2,9 +2,9 @@
 /* global next */
 
 
-// Main Controller
+// Angular Controller
 module.exports = function (req, res, next) {
 
-    return res.send('Main Controller: Hello World!');
+    return res.send('Angular Controller: Hello World!');
 
 };

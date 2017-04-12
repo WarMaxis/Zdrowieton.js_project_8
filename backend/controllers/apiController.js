@@ -2,9 +2,9 @@
 /* global next */
 
 
-// Main Controller
+// Api Controller
 module.exports = function (req, res, next) {
 
-    return res.send('Main Controller: Hello World!');
+    return res.send('Api Controller: Hello World!');
 
 };
