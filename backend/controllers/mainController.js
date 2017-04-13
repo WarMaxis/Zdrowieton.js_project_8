@@ -1,10 +1,9 @@
-/* eslint no-unused-vars: ["error", { "vars": "local", "args": "none" }] */
-/* global next */
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
 
 
 // Main Controller
 module.exports = function (req, res, next) {
 
-    return res.send('Main Controller: Hello World!');
+    res.send('Main Controller: Hello World!');
 
 };

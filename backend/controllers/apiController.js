@@ -1,10 +1,9 @@
-/* eslint no-unused-vars: ["error", { "vars": "local", "args": "none" }] */
-/* global next */
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
 
 
 // Api Controller
 module.exports = function (req, res, next) {
 
-    return res.send('Api Controller: Hello World!');
+    res.send('Api Controller: Hello World!');
 
 };

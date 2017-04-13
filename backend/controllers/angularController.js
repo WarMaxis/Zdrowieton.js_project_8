@@ -1,10 +1,9 @@
-/* eslint no-unused-vars: ["error", { "vars": "local", "args": "none" }] */
-/* global next */
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
 
 
 // Angular Controller
 module.exports = function (req, res, next) {
 
-    return res.send('Angular Controller: Hello World!');
+    res.send('Angular Controller: Hello World!');
 
 };
