@@ -52,6 +52,8 @@ const pageSchema = new mongoose.Schema({
         type: String,
         default: APP_CONFIG.DIRECTORY.PAGES_DIR
     }
+}, {
+    versionKey: false
 });
 
 

@@ -23,7 +23,7 @@ module.exports = function alertHandler(type, message, title, ...args) {
     type = types[type] ? type : 'info';
     message = args.message || message || 'Remember to specify necessary property type & message in a configuration object or pass arguments in the same order.';
     title = args.title || title || type;
-    let color = types[type];
+    const color = types[type];
 
     const messageTemplate = `
 **~~~~~~~~* ${title.toUpperCase()} LOG - OPEN *~~~~~~~~~**

@@ -1,18 +1,52 @@
-const mongoose = require('mongoose');
+// NODE MODULES
+const mongoose = require('../services/mongoose');
+const mongooseUniqueValidator = require('mongoose-unique-validator');
+
 
 const resultSchema = new mongoose.Schema({
-    name: String,
-    position: {
-        coordinates: [Number]
+    name: {
+        type: String,
+        required: true
     },
-    city: String,
-    district: String,
+    position: {
+        coordinates: {
+            type: [Number],
+            required: true
+        }
+    },
+    city: {
+        type: String,
+        required: true
+    },
+    district: {
+        type: String,
+        required: true
+    },
     last_metering: {
-        created: String,
-        pm25: Number,
-        pm10: Number,
-        pm01: Number
+        created: {
+            type: String,
+            required: true,
+            unique: true
+        },
+        pm25: {
+            type: Number,
+            required: true
+        },
+        pm10: {
+            type: Number,
+            required: true
+        },
+        pm01: {
+            type: Number,
+            required: true
+        }
     }
+}, {
+    versionKey: false
 });
+
+
+resultSchema.plugin(mongooseUniqueValidator);
+
 
 module.exports = mongoose.model('Result', resultSchema);

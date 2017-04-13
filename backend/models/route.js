@@ -8,10 +8,6 @@ const APP_CONFIG = require('../app.config');
 
 
 const routeSchema = new mongoose.Schema({
-    type: {
-        type: String,
-        default: APP_CONFIG.MODE
-    },
     url: {
         type: String,
         required: true,
@@ -25,6 +21,8 @@ const routeSchema = new mongoose.Schema({
         type: String,
         default: APP_CONFIG.ROUTE.DEFAULT_CONTROLLER
     }
+}, {
+    versionKey: false
 });
 
 
