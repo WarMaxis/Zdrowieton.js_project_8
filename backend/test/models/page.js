@@ -1,6 +1,5 @@
 /* eslint no-console: 0 */
-/* eslint no-unused-vars: ["error", { "vars": "local", "args": "none" }] */
-/* global pageModel page */
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
 
 
 'use strict';

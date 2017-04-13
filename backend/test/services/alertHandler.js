@@ -15,16 +15,19 @@ chai.use(sinonChai);
 
 // NODE MODULES
 const chalk = require('chalk');
+
+
+// APP SERVICES
+const alertHandler = require('../../services/alertHandler');
+
+
+//USEFUL FUNCTIONS
 const messageTemplate = (title, message) => {
     return `
 **~~~~~~~~* ${title.toUpperCase()} LOG - OPEN *~~~~~~~~~**
 ${message}
 **~~~~~~~~* ${title.toUpperCase()} LOG - CLOSE *~~~~~~~~**`;
 };
-
-
-// APP SERVICES
-const alertHandler = require('../../services/alertHandler');
 
 
 describe('Services:', () => {

@@ -1,6 +1,5 @@
 /* eslint no-console: 0 */
-/* eslint no-unused-vars: ["error", { "vars": "local", "args": "none" }] */
-/* global routeModel route */
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
 
 
 'use strict';
@@ -110,7 +109,6 @@ describe('Models:', () => {
 
         it('new route object created only with required object property url should return correct object', () => {
             const routeEqual = {
-                type: route.type,
                 url: route.url,
                 method: route.method,
                 controller: route.controller
@@ -122,7 +120,6 @@ describe('Models:', () => {
         it('new route object created with all random object properties should return correct object', () => {
             route = new routeModel(helpers.ROUTE_MODEL.RANDOM_EQUAL_ROUTE);
             const routeEqual = {
-                type: route.type,
                 url: route.url,
                 method: route.method,
                 controller: route.controller
