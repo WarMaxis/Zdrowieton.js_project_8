@@ -21,7 +21,8 @@ const APP_CONFIG = require('./app.config.js');
 
 // APP HELPERS
 const dataInjector = require('./helpers/dataInjector');
-//const routesInjector = require('./helpers/routesInjector');
+const routesInjector = require('./helpers/routesInjector');
+const createServer = require('./helpers/createServer');
 
 
 // APP MIDDLEWARES
@@ -29,7 +30,12 @@ const errorHandler = require('./middlewares/errorHandler');
 
 
 // APP MODELS
-const Route = require('./models/route').model;
+const routeSchema = require('./models/route').schema;
+const RouteTypes = {
+    normal: mongoose.model('NormalRoute', routeSchema),
+    angular: mongoose.model('AngularRoute', routeSchema),
+    api: mongoose.model('ApiRoute', routeSchema)
+};
 const Page = require('./models/page').model;
 
 
@@ -44,6 +50,14 @@ const routes = require('./routes/routes');
 // APP SERVICES
 const reqProtocol = require('./services/reqProtocol');
 const alertHandler = require('./services/alertHandler');
+
+
+// MongoDB Connect ---> http://mongoosejs.com/docs/guide.html
+mongoose.connect(`mongodb://${APP_CONFIG.MONGO_DB.USER}:${APP_CONFIG.MONGO_DB.PASSDOWRD}@${APP_CONFIG.MONGO_DB.HOST}:${APP_CONFIG.MONGO_DB.PORT}/${APP_CONFIG.MONGO_DB.NAME}`, APP_CONFIG.MONGO_DB.OPTIONS, (err) => {
+    if (err) {
+        alertHandler('error', err);
+    }
+});
 
 
 // ExpressAPP Init ---> https://expressjs.com/en/4x/api.html
@@ -104,18 +118,43 @@ app[METHOD:get,post,put...]('/ROUTE_EXAMPLE', FUNCTION(req, res, next) => {
 });
 
 */
+
+
+
 // Second way recommended: Go into directory ./routes then in file routes.js defines your route objects for any mode.
-// Depends on currently selected mode adds routes to app object
-//Route.find({
-//    type: APP_CONFIG.MODE
-//}).then((results) => {
-//    //routesInjector(app, results);
-//    console.log(results);
-//
-//    results.forEach((elem) => {
-//        app[elem.method](elem.url.split(','), elem.getController());
-//    });
-//});
+mongoose.connection.on('connected', () => {
+    const sortBy = {
+        url: -1
+    };
+
+    RouteTypes[APP_CONFIG.MODE].find().sort(sortBy).then((data) => {
+        if (data.length === 0) {
+
+            dataInjector(RouteTypes[APP_CONFIG.MODE], routes[APP_CONFIG.MODE]).then((data) => {
+
+                routesInjector(app, data);
+                app.use(errorHandler[APP_CONFIG.MODE]);
+
+            }).catch((err) => {
+                if (!err.message === 'Route validation failed') {
+                    alertHandler('error', err);
+                }
+            });
+
+        } else {
+
+            routesInjector(app, data);
+            app.use(errorHandler[APP_CONFIG.MODE]);
+
+        }
+    });
+
+    dataInjector(Page, pages).catch((err) => {
+        if (!err.message === 'Page validation failed') {
+            alertHandler('error', err);
+        }
+    });
+});
 
 
 ////////////////////////////////////
@@ -126,50 +165,8 @@ app[METHOD:get,post,put...]('/ROUTE_EXAMPLE', FUNCTION(req, res, next) => {
 ////////////////////////////////////
 
 
-// Handles HTTP errors
-app.use(errorHandler);
-
-
-// Allows exporting to usage in different places e.g. unit tests
-function createServer(app, port, host, ...args) {
-    if (arguments.length === 0) {
-        return false;
-    }
-
-    if (arguments.length === 1 && typeof app === 'object') {
-        args = app;
-
-        app = args.app;
-        port = args.port;
-        host = args.host;
-    }
-
-    if (typeof app !== 'function') {
-        return false;
-    }
-
-    app.listen(port, host, () => {
-        console.log('\x1b[34m%s\x1b[0m', '[Restful API]', `Listening on address: http://${host}:${port}`);
-    });
-}
-
-
 // Runs the HTTP server
 createServer(app, app.get('port'), app.get('host'));
 
 
-// MongoDB Connect ---> http://mongoosejs.com/docs/guide.html
-mongoose.connect(`mongodb://${APP_CONFIG.MONGO_DB.USER}:${APP_CONFIG.MONGO_DB.PASSDOWRD}@${APP_CONFIG.MONGO_DB.HOST}:${APP_CONFIG.MONGO_DB.PORT}/${APP_CONFIG.MONGO_DB.NAME}`, APP_CONFIG.MONGO_DB.OPTIONS, (err) => {
-    if (err) {
-        alertHandler('error', err);
-    }
-}).then(() => { // Injects static objects of route and page to database
-    dataInjector(Route, routes[APP_CONFIG.MODE]);
-    dataInjector(Page, pages);
-});
-
-
-module.exports = {
-    app: app,
-    createServer: createServer
-};
+module.exports = app;

@@ -14,7 +14,7 @@ module.exports = {
             }
         }
     },
-    MODE: 'normal', // normal / angular / api
+    MODE: 'normal', // normal / angular / api <-- Only these modes available
     LANGUAGES: [ // All HTML files need to have a language suffix e.g index-en.html etc.
         'pl', // First element is default variable - Is returned in all otherwise cases of a request, which hasn't specified language value.
         'en'
