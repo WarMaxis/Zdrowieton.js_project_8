@@ -10,15 +10,32 @@ const expect = chai.expect;
 const helpers = require('./helpers/helpers');
 
 
+// NODE MODULES
+const request = require('request');
+
+
 // APP CONFIG
 const APP_CONFIG = require('../app.config');
 
 
-// LOCAL MODULES
-const request = require('request');
+describe('[NORMAL-MOD] Application responses:', () => {
+    if (APP_CONFIG.MODE !== 'normal') {
+        return;
+    }
+
+    describe('GET: /', () => {
+        it('should returns status code: 200', () => {
 
 
-describe('[A-MOD] Application responses:', () => {
+        });
+    });
+});
+
+
+describe('[ANGULAR-MOD] Application responses:', () => {
+    if (APP_CONFIG.MODE !== 'angular') {
+        return;
+    }
 
     describe('GET: /', () => {
         it('should returns status code: 200', (done) => {
@@ -603,4 +620,18 @@ describe('[A-MOD] Application responses:', () => {
         });
     });
 
+});
+
+
+describe('[API-MOD] Application responses:', () => {
+    if (APP_CONFIG.MODE !== 'api') {
+        return;
+    }
+
+    describe('GET: /', () => {
+        it('should returns status code: 200', () => {
+
+
+        });
+    });
 });

@@ -34,7 +34,7 @@ describe('Pages:', () => {
             pages.forEach((elem) => {
 
                 expect(elem).to.have.property('name').and.not.to.be.empty;
-                expect(elem).to.have.property('url').and.to.match(/^\/.*/);
+                expect(elem).to.have.property('url').and.to.match(/\/[a-z0-9]{0,25}$/);
                 expect(elem).to.have.property('fileName').and.not.to.be.empty;
 
             });
