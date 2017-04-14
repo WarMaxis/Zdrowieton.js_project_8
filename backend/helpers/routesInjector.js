@@ -1,34 +1,39 @@
-// LOCAL MODULES
-const Route = require('../models/route');
-const RoutesArray = require('../models/routesArray');
+// Helpers - Function: routesInjector( { appObj: APP OBJECT, routesArr: [{}, {}] } ) or arguments in the same order as object properties.
+module.exports = function (appObj, routesArr, ...args) {
+    const injectionStats = {
+        incorrect: [],
+        success: [],
+        failure: []
+    };
 
-
-// Helpers - Function: routesInjector( { appObj: APP OBJECT, routeObj: {url: '/test', method: 'get', controller: 'mainController'} ||&& routesArr: [{}, {}] } ) or arguments in the same order as object properties
-module.exports = function (appObj, routeObj, routesArr, ...args) {
     if (arguments.length === 0) {
         return false;
     }
 
-    if (arguments.length === 1 && typeof arguments[0] === 'object') {
-        args = arguments[0];
+    if (arguments.length === 1 && typeof appObj === 'object') {
+        args = appObj;
 
         appObj = args.appObj;
-        routeObj = args.routeObj;
         routesArr = args.routesArr;
     }
 
-    if (!appObj || typeof appObj !== 'function' || (routeObj instanceof Route == false && routesArr instanceof RoutesArray == false)) {
+    if (typeof appObj !== 'function' || routesArr instanceof Array === false) {
         return false;
     }
 
-    routesArr = routesArr ? routesArr.routesArray : [];
-    if (routeObj instanceof Route === true) {
-        routesArr.unshift(routeObj);
-    }
-
     routesArr.forEach((elem) => {
-        appObj[elem.method](elem.url, elem.controller);
+        if (typeof appObj[elem.method] === 'function' && typeof elem.url === 'string' && typeof elem.getController === 'function') {
+            try {
+                appObj[elem.method](elem.url.split(','), elem.getController());
+
+                injectionStats.success.push(elem);
+            } catch (e) {
+                injectionStats.failure.push(elem);
+            }
+        } else {
+            injectionStats.incorrect.push(elem);
+        }
     });
 
-    return true;
+    return injectionStats;
 };
