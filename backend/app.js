@@ -1,4 +1,4 @@
-/* eslint no-console: 0 */
+/* eslint no-unused-vars: ["error", { "args": "none" }] */
 
 
 'use strict';
@@ -26,17 +26,12 @@ const createServer = require('./helpers/createServer');
 
 
 // APP MIDDLEWARES
-const errorHandler = require('./middlewares/errorHandler');
+const errorHandler = require('./middlewares/errorHandler')[APP_CONFIG.MODE];
 
 
 // APP MODELS
-const routeSchema = require('./models/route').schema;
-const RouteTypes = {
-    normal: mongoose.model('NormalRoute', routeSchema),
-    angular: mongoose.model('AngularRoute', routeSchema),
-    api: mongoose.model('ApiRoute', routeSchema)
-};
-const Page = require('./models/page').model;
+const routeModel = mongoose.model(`${APP_CONFIG.MODE}Route`, require('./models/route').schema);
+const pageModel = require('./models/page').model;
 
 
 //APP PAGES
@@ -44,7 +39,7 @@ const pages = require('./pages/pages');
 
 
 // APP ROUTES
-const routes = require('./routes/routes');
+const routes = require('./routes/routes')[APP_CONFIG.MODE];
 
 
 // APP SERVICES
@@ -123,37 +118,39 @@ app[METHOD:get,post,put...]('/ROUTE_EXAMPLE', FUNCTION(req, res, next) => {
 
 // Second way recommended: Go into directory ./routes then in file routes.js defines your route objects for any mode.
 mongoose.connection.on('connected', () => {
-    const sortBy = {
-        url: -1
-    };
 
-    RouteTypes[APP_CONFIG.MODE].find().sort(sortBy).then((data) => {
-        if (data.length === 0) {
+    // Injects static objects of routes to database
+    dataInjector(routeModel, routes).then((data) => {
+        const sortBy = {
+            url: -1
+        };
 
-            dataInjector(RouteTypes[APP_CONFIG.MODE], routes[APP_CONFIG.MODE]).then((data) => {
+        // Searching for all routes in database
+        routeModel.find().sort(sortBy).then((data) => {
 
-                routesInjector(app, data);
-                app.use(errorHandler[APP_CONFIG.MODE]);
+            // Depends on currently selected mode adds routes to app
+            const incorrectInjectedRoutes = routesInjector(app, data).incorrect;
 
-            }).catch((err) => {
-                if (!err.message === 'Route validation failed') {
-                    alertHandler('error', err);
-                }
-            });
+            if (incorrectInjectedRoutes.length !== 0) {
+                alertHandler('warning', `<Database> Incorrect injected routes: ${JSON.stringify(incorrectInjectedRoutes)}`);
+            }
 
-        } else {
+            // Handles HTTP errors
+            app.use(errorHandler);
 
-            routesInjector(app, data);
-            app.use(errorHandler[APP_CONFIG.MODE]);
-
-        }
-    });
-
-    dataInjector(Page, pages).catch((err) => {
-        if (!err.message === 'Page validation failed') {
+        }).catch((err) => {
             alertHandler('error', err);
-        }
+        });
+
+    }).catch((err) => {
+        alertHandler('error', err);
     });
+
+    // Injects static objects of pages to database
+    dataInjector(pageModel, pages).catch((err) => {
+        alertHandler('error', err);
+    });
+
 });
 
 
