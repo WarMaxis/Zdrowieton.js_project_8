@@ -1,7 +1,8 @@
 // APP CONFIG
 module.exports = {
     HOST: 'localhost', // Development server will be on address: http://localhost:4000
-    PORT: 4000,
+    PORT: 4848,
+    ENV: 'development',
     MONGO_DB: { // MongoDB Config - mongodb://USER:PASSWORD@HOST:PORT/NAME
         USER: '',
         PASSDOWRD: '',
@@ -37,13 +38,16 @@ module.exports = {
         DEFAULT_CONTROLLER: 'mainController'
     },
     MAIN_PAGE: { // Global settings for pages: MAIN, 404, 500 and REDIRECT. Sets up, which page should be displayed as the main page, 404 error page, 500 error page and redirect page.
-        NAME: 'main page'
+        NAME: 'main page',
+        URL: '/home'
     },
     404: {
-        NAME: '404 page'
+        NAME: '404 page',
+        URL: '/404'
     },
     500: {
-        NAME: '500 page'
+        NAME: '500 page',
+        URL: '/500'
     },
     REDIRECT: {
         TYPES: [

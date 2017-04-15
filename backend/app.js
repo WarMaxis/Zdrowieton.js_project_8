@@ -59,9 +59,10 @@ mongoose.connect(`mongodb://${APP_CONFIG.MONGO_DB.USER}:${APP_CONFIG.MONGO_DB.PA
 const app = express();
 
 
-// Sets variables host & port in app object
-app.set('host', process.env.NODE_IP || 'localhost');
-app.set('port', process.env.NODE_PORT || 4000);
+// Sets variables host ,port and environment in app object
+app.set('host', process.env.NODE_IP || APP_CONFIG.HOST);
+app.set('port', process.env.NODE_PORT || APP_CONFIG.PORT);
+app.set('env', process.env.NODE_ENV || APP_CONFIG.ENV);
 
 
 // Enables all Cross-Origin Resource Sharing (CORS) requests, more info about CORS middleware ---> https://github.com/expressjs/cors#cors
@@ -92,7 +93,9 @@ if (app.get('env') === 'production') {
 
 
 // Serves static files from the directory, which is defined in the app.config.js file
-app.use('/', express.static(`${__dirname}${APP_CONFIG.DIRECTORY.STATIC_DIR}`));
+app.use('/', express.static(`${__dirname}${APP_CONFIG.DIRECTORY.STATIC_DIR}`, {
+    maxAge: 604800000
+}));
 
 
 ////////////////////////////////////
@@ -128,7 +131,7 @@ mongoose.connection.on('connected', () => {
         // Searching for all routes in database
         routeModel.find().sort(sortBy).then((data) => {
 
-            // Depends on currently selected mode adds routes to app
+            // Depends on currently selected mode adds routes to app object
             const incorrectInjectedRoutes = routesInjector(app, data).incorrect;
 
             if (incorrectInjectedRoutes.length !== 0) {
