@@ -42,7 +42,7 @@ module.exports = function (model, array, ...args) {
             array = args.array;
         }
 
-        if (typeof model !== 'function' || array instanceof Array === false) {
+        if (typeof model !== 'function' || typeof model.create !== 'function' || array instanceof Array === false) {
             reject(false);
         }
 
