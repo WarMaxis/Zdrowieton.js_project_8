@@ -1,7 +1,7 @@
-// Herlpers - Here put all your needed variables & functions for unit testing
+//Herlpers - Here put all your needed variables & functions for unit testing
 module.exports = {
     HOST: 'localhost', // Test server will be on address: http://localhost:4001
-    PORT: 4001,
+    PORT: 5848,
     MONGO_DB: { // MongoDB Config - mongodb://USER:PASSWORD@HOST:PORT/NAME
         USER: '',
         PASSDOWRD: '',
