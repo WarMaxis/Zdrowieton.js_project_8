@@ -35,7 +35,7 @@ module.exports = {
                 statusCode: 301,
                 type: 'name',
                 name: 'main page',
-                url: '/'
+                url: '/home'
             },
             root: '/assets/pages'
         },
@@ -69,6 +69,10 @@ module.exports = {
             controller: 'loginController'
         }
     },
-    baseUrl: 'http://localhost:4000/', // 
-    anySlug: 'qwertyuiop1234567890'
+    baseUrl: 'http://localhost:4848/', // Development server address needed here !
+    anySlug: 'qwertyuiop1234567890',
+    langRegExp: {
+        pl: /.*<html.*lang\=\"pl\".*/gi,
+        en: /.*<html.*lang\=\"en\".*/gi
+    }
 };

@@ -35,7 +35,6 @@ describe('Helpers:', () => {
 
     describe('dataInjector.js', () => {
         before((done) => {
-
             mongoose.connect(`mongodb://${helpers.MONGO_DB.USER}:${helpers.MONGO_DB.PASSDOWRD}@${helpers.MONGO_DB.HOST}:${helpers.MONGO_DB.PORT}/${helpers.MONGO_DB.NAME}`, helpers.MONGO_DB.OPTIONS, (err) => {
                 if (err) {
                     console.log(err.message);
@@ -43,7 +42,6 @@ describe('Helpers:', () => {
 
                 done();
             });
-
         });
 
         beforeEach((done) => {
