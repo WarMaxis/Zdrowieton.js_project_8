@@ -6,7 +6,7 @@
   "scripts": {
     "nodemon": "nodemon app.js --ignore test/",
     "eslint": "eslint **/*.js || true",
-    "mocha": "mocha -s 2000 -t 4000 -w test/**/*.js || true",
+    "mocha": "mocha -s 2500 -t 10000 -w test/**/*.js || true",
     "dev": "npm run nodemon",
     "test": "npm run eslint && npm run mocha"
   },
