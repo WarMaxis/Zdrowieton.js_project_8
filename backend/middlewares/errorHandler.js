@@ -2,42 +2,32 @@
 
 
 // APP CONFIG
-const APP_CONFIG = require('../app.config');
+const HTTP_CODES_CONFIG = require('../app.config').HTTP_CODES_CONFIG;
+const PAGES_CONFIG = require('../app.config').PAGES_CONFIG;
 
 
 // APP SERVICES
-const alertHandler = require('../services/alertHandler');
 const reqProtocol = require('../services/reqProtocol');
+const alertHandler = require('../services/alertHandler');
 
 
 // USEFUL FUNCTIONS
 function errorToJson(err) {
-    alertHandler('error', err);
-
     return {
         message: err.message,
         stack: err.stack,
-        statusCode: err.statusCode ? err.statusCode : APP_CONFIG.HTTP_CODE.SUPPORTED_ERRORS[0]
+        statusCode: err.statusCode ? err.statusCode : HTTP_CODES_CONFIG.SUPPORTED_ERRORS[0]
     };
 }
 
 
 // Normal Error Handler
 function normalErrorHandler(err, req, res, next) {
-    const supportedErrors = APP_CONFIG.HTTP_CODE.SUPPORTED_ERRORS;
+    const errorCode = HTTP_CODES_CONFIG.SUPPORTED_ERRORS.includes(err.statusCode) ? err.statusCode : HTTP_CODES_CONFIG.SUPPORTED_ERRORS[0];
 
-    const errorCode = supportedErrors.includes(err.statusCode) ? err.statusCode : supportedErrors[0];
+    alertHandler('error', errorToJson(err));
 
-    const redirectParams = {
-        statusCode: 302,
-        url: `${reqProtocol(req)}://${process.env.NODE_ENV === 'production' ? req.hostname : req.headers.host}${APP_CONFIG[errorCode].URL}`
-    };
-
-
-    alertHandler('error', err);
-
-
-    return res.redirect(redirectParams.statusCode, redirectParams.url);
+    res.redirect(HTTP_CODES_CONFIG.REDIRECT.TEMPORARY, `${reqProtocol(req)}://${process.env.NODE_ENV === 'production' ? req.hostname : req.headers.host}${PAGES_CONFIG[errorCode].URL}`);
 }
 
 
@@ -45,7 +35,9 @@ function normalErrorHandler(err, req, res, next) {
 function angularErrorHandler(err, req, res, next) {
     const params = errorToJson(err);
 
-    return res.status(params.statusCode).type('json').send(params);
+    alertHandler('error', params);
+
+    res.status(params.statusCode).type('json').send(params);
 }
 
 
@@ -53,7 +45,9 @@ function angularErrorHandler(err, req, res, next) {
 function apiErrorHandler(err, req, res, next) {
     const params = errorToJson(err);
 
-    return res.status(params.statusCode).type('json').send(params);
+    alertHandler('error', params);
+
+    res.status(params.statusCode).type('json').send(params);
 }
 
 
