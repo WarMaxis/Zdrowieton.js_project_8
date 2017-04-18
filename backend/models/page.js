@@ -3,11 +3,16 @@ const mongoose = require('../services/mongoose');
 const mongooseUniqueValidator = require('mongoose-unique-validator');
 
 
-// APP CONFIG
-const APP_CONFIG = require('../app.config');
+// PAGES CONFIG
+const HTTP_CODES_CONFIG = require('../app.config').HTTP_CODES_CONFIG;
+const PAGES_CONFIG = require('../app.config').PAGES_CONFIG;
 
 
 const pageSchema = new mongoose.Schema({
+    type: {
+        type: String,
+        default: PAGES_CONFIG.MODEL.DEFAULT_TYPE
+    },
     name: {
         type: String,
         required: true,
@@ -20,37 +25,33 @@ const pageSchema = new mongoose.Schema({
     },
     statusCode: {
         type: Number,
-        default: APP_CONFIG.HTTP_CODE.SUCCESS
+        default: HTTP_CODES_CONFIG.SUCCESS
     },
     fileName: {
         type: String,
         required: true
     },
-    type: {
-        type: String,
-        default: APP_CONFIG.PAGE.DEFAULT_TYPE
-    },
     redirect: {
         type: {
             type: String,
-            default: APP_CONFIG.REDIRECT.DEFAULT_TYPE
+            default: PAGES_CONFIG.MODEL.REDIRECT.DEFAULT_TYPE
         },
         name: {
             type: String,
-            default: APP_CONFIG.REDIRECT.DEFAULT_NAME
+            default: PAGES_CONFIG.MODEL.REDIRECT.DEFAULT_NAME
         },
         url: {
             type: String,
-            default: APP_CONFIG.REDIRECT.DEFAULT_URL
+            default: PAGES_CONFIG.MODEL.REDIRECT.DEFAULT_URL
         },
         statusCode: {
             type: Number,
-            default: APP_CONFIG.HTTP_CODE.REDIRECT
+            default: HTTP_CODES_CONFIG.REDIRECT.PERMANENT
         }
     },
     root: {
         type: String,
-        default: APP_CONFIG.DIRECTORY.PAGES_DIR
+        default: PAGES_CONFIG.DIRECTORY.PAGES_DIR
     }
 }, {
     versionKey: false

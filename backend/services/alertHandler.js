@@ -27,7 +27,7 @@ module.exports = function alertHandler(type, message, title, ...args) {
 
     const messageTemplate = `
 **~~~~~~~~* ${title.toUpperCase()} LOG - OPEN *~~~~~~~~~**
-${message}
+${typeof message === 'object' ? JSON.stringify(message) : message}
 **~~~~~~~~* ${title.toUpperCase()} LOG - CLOSE *~~~~~~~~**`;
 
     console.log(chalk[color](messageTemplate));

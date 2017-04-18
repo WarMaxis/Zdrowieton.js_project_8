@@ -2,7 +2,7 @@
 module.exports = [
     { // Example page type:  main ---> Remember to create all new pages according to below examples of all available types of pages.
         name: 'main page',
-        url: '/home',
+        url: '/home', // Pattern ---> /^\/{0,1}[a-z0-9-_]{0,24}$/
         fileName: 'index',
         type: 'main',
         root: '/assets'

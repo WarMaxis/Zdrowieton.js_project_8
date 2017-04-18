@@ -3,8 +3,8 @@ const mongoose = require('../services/mongoose');
 const mongooseUniqueValidator = require('mongoose-unique-validator');
 
 
-// APP CONFIG
-const APP_CONFIG = require('../app.config');
+// ROUTES CONFIG
+const ROUTES_CONFIG = require('../app.config').ROUTES_CONFIG;
 
 
 const routeSchema = new mongoose.Schema({
@@ -15,11 +15,11 @@ const routeSchema = new mongoose.Schema({
     },
     method: {
         type: String,
-        default: APP_CONFIG.ROUTE.DEFAULT_METHOD
+        default: ROUTES_CONFIG.MODEL.DEFAULT_METHOD
     },
     controller: {
         type: String,
-        default: APP_CONFIG.ROUTE.DEFAULT_CONTROLLER
+        default: ROUTES_CONFIG.MODEL.DEFAULT_CONTROLLER
     }
 }, {
     versionKey: false
@@ -27,7 +27,7 @@ const routeSchema = new mongoose.Schema({
 
 
 routeSchema.methods.getController = function () {
-    return require(`../${APP_CONFIG.DIRECTORY.CONTROLLERS_DIR}/${this.controller}`);
+    return require(`../${ROUTES_CONFIG.DIRECTORY.CONTROLLERS_DIR}/${this.controller}`);
 };
 
 

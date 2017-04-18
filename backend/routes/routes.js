@@ -2,7 +2,7 @@
 module.exports = {
     normal: [ // Normal mod routes:
         {
-            url: '/normal',
+            url: '/normal', // Pattern ---> /(^\/[a-z0-9-_:{}*\/]{0,50}$|^\*$)/
             controller: 'mainController' // default
         },
         {
