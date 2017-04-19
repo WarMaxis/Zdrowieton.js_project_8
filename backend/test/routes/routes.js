@@ -43,7 +43,7 @@ describe('Routes:', () => {
             });
 
             it(`each object property url in ${elem} mode <array> should be a string or an array of strings e.g. '/newOne'`, () => {
-                const regExp = /(^\/[a-z0-9-_:{}*\/]{0,50}$|^\*$)/;
+                const regExp = /(^\/{1}[a-z0-9-_:{}*\/]{0,50}$|^\*$)/;
 
                 routes[elem].forEach((el) => {
                     let url = el.url;

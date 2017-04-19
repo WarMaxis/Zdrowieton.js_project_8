@@ -2,11 +2,15 @@
 module.exports = {
     normal: [ // Normal mod routes:
         {
-            url: '/normal', // Pattern ---> /(^\/[a-z0-9-_:{}*\/]{0,50}$|^\*$)/
+            url: '/results',
+            controller: 'resultsController'
+        },
+        {
+            url: '/normal', // Pattern ---> /(^\/{1}[a-z0-9-_:{}*\/]{0,50}$|^\*$)/
             controller: 'mainController' // default
         },
         {
-            url: ['/', '/:lang', '/:lang/*', '/:lang/:page', '/:lang/:page/*', '*'],
+            url: ['/', '/:lang', '/:lang/:page', '/:lang/:page/*', '*'],
             method: 'get', // default
             controller: 'normalController'
         }
