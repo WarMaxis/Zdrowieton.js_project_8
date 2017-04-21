@@ -76,7 +76,7 @@ module.exports = function (req, res, next) {
         }
 
         // Sends the appropriate HTML file of found page
-        res.status(200).type('html').sendFile(page.fullFileName(lang.value), {
+        res.status(page.statusCode).type('html').sendFile(page.fullFileName(lang.value), {
             root: `${__dirname}/..${page.root}`,
             headers: PAGES_CONFIG.HEADERS
         }, (err) => {
