@@ -134,7 +134,7 @@ app[METHOD:get,post,put,delete...]('/ROUTE_EXAMPLE', MIDDLEWARE(req, res, next),
 ////////////////////////////////////
 
 
-// Event on successfully connected to database
+// Event on successfully connecting to database
 mongoose.connection.on('connected', () => {
 
     // Injects static objects of routes to database
@@ -167,6 +167,17 @@ mongoose.connection.on('connected', () => {
     // Injects static objects of pages to database
     dataInjector(pageModel, pages).catch((err) => {
         alertHandler('error', err);
+    });
+
+});
+
+
+// Event on CTRL+C keys pressing
+process.on('SIGINT', () => {
+
+    // Closes connection with MongoDB
+    mongoose.connection.close(() => {
+        process.exit(0);
     });
 
 });

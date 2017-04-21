@@ -2,6 +2,10 @@
 module.exports = {
     normal: [ // Normal mod routes:
         {
+            url: '/stations',
+            controller: 'stationsController'
+        },
+        {
             url: '/results',
             controller: 'resultsController'
         },

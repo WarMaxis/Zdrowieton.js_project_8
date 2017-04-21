@@ -1,6 +1,6 @@
 //Herlpers - Here put all your needed variables & functions for unit testing
 module.exports = {
-    HOST: 'localhost', // Test server will be on address: http://localhost:4001
+    HOST: 'localhost', // Test server will be on address: http://localhost:5858
     PORT: 5848,
     MONGO_DB: { // MongoDB Config - mongodb://USER:PASSWORD@HOST:PORT/NAME
         USER: '',
@@ -68,11 +68,5 @@ module.exports = {
             method: 'post',
             controller: 'loginController'
         }
-    },
-    baseUrl: 'http://localhost:4848/', // Development server address needed here !
-    anySlug: 'qwertyuiop1234567890',
-    langRegExp: {
-        pl: /.*<html.*lang\=\"pl\".*/gi,
-        en: /.*<html.*lang\=\"en\".*/gi
     }
 };
