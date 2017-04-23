@@ -7,7 +7,7 @@
  *
  * Copyright(©) 2017 Mateusz Archiciński
  *
- * MIT License
+ * GNU General Public License v3.0
  *
  */
 
