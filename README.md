@@ -9,16 +9,15 @@ Backend  functionalities:
 ## How to get data from backend?
 Data is stored in MongoDB, so it is required to run a database locally or to configure a connection to an external database in app.config.js.
 
-
-
+<br>
 Firstly call command to run the server-side application:
 ```
 npm run dev
 ```
 
 Now when everything works you can start sending requests to get:
-- http://localhost:4848/stations - Array of stations objects
-- http://localhost:4848/results?find=name:Smogly&select=name,country&limit=4&sort=last_metering.created:-1 - Array of specified results objects
+- <a href="http://localhost:4848/stations" target="_blank" rel="help">http://localhost:4848/stations</a> - Array of stations objects
+- <a href="http://localhost:4848/results?find=name:Smogly&select=name,country&limit=4&sort=last_metering.created:-1" target="_blank" rel="help">http://localhost:4848/results?find=name:Smogly&select=name,country&limit=4&sort=last_metering.created:-1</a> - Array of specified results objects
 
 ### Find:
 Default: {} - Any object
@@ -40,8 +39,7 @@ Default: {'last_metering.created': -1} - In order from the latest
 
 Example query: ?sort=created:1 - Parses to {created: 1} - In order from the oldest
 
-
-
+<br>
 If you get always empty array as response probably you forgot to run smoglyDataCollector. Simply run using a command:
 ```
 npm run smoglyDataCollector
