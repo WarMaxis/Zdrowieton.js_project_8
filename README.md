@@ -10,6 +10,7 @@ Backend  functionalities:
 Data is stored in MongoDB, so it is required to run a database locally or to configure a connection to an external database in app.config.js.
 
 <br>
+
 Firstly call command to run the server-side application:
 ```
 npm run dev
@@ -40,6 +41,7 @@ Default: {'last_metering.created': -1} - In order from the latest
 Example query: ?sort=created:1 - Parses to {created: 1} - In order from the oldest
 
 <br>
+
 If you get always empty array as response probably you forgot to run smoglyDataCollector. Simply run using a command:
 ```
 npm run smoglyDataCollector
