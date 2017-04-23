@@ -1,7 +1,7 @@
 // APP CONFIG
 module.exports = {
     MODE: 'normal', // normal / angular / api <-- Only these modes available
-    HOST: 'localhost', // Development server will be on address: http://localhost:4000
+    HOST: 'localhost', // Development server will be on address: http://localhost:4848
     PORT: 4848,
     ENV: 'development',
     MONGO_DB: { // MongoDB Config - mongodb://USER:PASSWORD@HOST:PORT/NAME
