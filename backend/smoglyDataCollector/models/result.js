@@ -48,12 +48,10 @@ const resultSchema = new mongoose.Schema({
             required: true
         },
         temp_out1: {
-            type: Number,
-            required: true
+            type: Number
         },
         hum_out1: {
-            type: Number,
-            required: true
+            type: Number
         }
     }
 }, {
